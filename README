@@ -1,0 +1,34 @@
+Network:
+- Network manager di pakai, netplan purged
+- /etc/network/interfaces yg ethernet di komen karena bikin masalah.. jd eth0 skrg g idup
+- in /etc/nsswitch.conf add wins in host: row to make windows get advertise samba netbios
+- Enable auto-logon with systemd (non-GUI):
+  sudo systemctl edit getty@tty1.service
+  [Service]
+  ExecStart=
+  ExecStart=-/sbin/agetty --noissue --autologin myusername %I $TERM
+  Type=idle
+- DNSCRYPT-Proxy ga bs jalan karena systemd-resolved, jd systemd-resolved.service di disable aja agar port 53 tidak terpakai
+
+Internet Share:
+Untuk menghubungkan Router OpenWRT agar bisa akses internet lewat server yg dipasang modem geunakan iptable script di server, contoh disini 
+interface modem di server enx0c5b8f279a64 dan LAN port nya enp3s0:
+
+iptables -A FORWARD -i enp3s0 -o enx0c5b8f279a64 -j ACCEPT
+iptables -A FORWARD -i enx0c5b8f279a64 -o enp3s0 -m state --state ESTABLISHED,RELATED \
+               -j ACCEPT
+iptables -t nat -A POSTROUTING -o enx0c5b8f279a64 -j MASQUERADE
+
+dan set ip gateway di Router ke ipaddr server (ex:192.168.1.1)
+
+bagan system:
+
+===========          =============       ============         ===================
+ internet      <--     Modem USB    <--     Server      <--   Router(OpenWRT)
+                     192.168.8.0/24       192.168.8.100       192.168.1.100
+===========          =============        192.168.1.1         gateway 192.168.1.1
+					=============         ===================
+
+agar subnet 192.168.8.0/24 bisa akses ke subnet 192.168.1.0/24, di Router set firewall bagian WAN sebagai input agar di ACCEPT
+
+untuk sementara sekarang manual aktiifin routernya pake command: # sudo iptables-restore /etc/iptables/rules.v4
