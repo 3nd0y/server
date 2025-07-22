@@ -25,10 +25,15 @@ bagan system:
 
 ===========          =============       ============         ===================
  internet      <--     Modem USB    <--     Server      <--   Router(OpenWRT)
-                     192.168.8.0/24       192.168.8.100       192.168.1.100
-===========          =============        192.168.1.1         gateway 192.168.1.1
+                     192.168.8.0/24       192.168.8.100       192.168.0.100
+===========          =============        192.168.1.1         gateway 192.168.0.100
 					=============         ===================
 
 agar subnet 192.168.8.0/24 bisa akses ke subnet 192.168.1.0/24, di Router set firewall bagian WAN sebagai input agar di ACCEPT
 
 untuk sementara sekarang manual aktiifin routernya pake command: # sudo iptables-restore /etc/iptables/rules.v4
+
+
+Khusus laptop kantor saya yang menggunakan VPN agar bisa akses lokal LAN ketika VPN aktif (win11):
+route -p add 192.168.0.0 mask 255.255.255.0 192.168.0.100
+route -p add 192.168.1.0 mask 255.255.255.0 192.168.0.100
